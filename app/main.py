@@ -1,10 +1,7 @@
 from fastapi import FastAPI
+from app.routes.movies import router as movie_router
 
 app = FastAPI()
 
-@app.get("/")
-
-def read_roo():
-   return{"message": "Welcome to the Movie Recommendation API!"}
-
+app.include_router(movie_router)
 

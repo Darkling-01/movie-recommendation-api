@@ -21,19 +21,29 @@ async def movie_recommendations():
 
 async def filtering_user_input(actor_name: str=None):
     media_data = await get_movie_recommendations()
+
+    # Make sure we're working with the "results" key from the media_data 
+    results = media_data.get("results", [])
     # Apply filtering logic
     filtered_data = []
 
     # filter data based on media type and actor
-    for media in media_data:
+    for media in results:
        try:
-           if isinstance(media, dict):
-               if actor_name and media.get("original_name") == actor_name:
+           if isinstance(media, dict):  # Only process dictonary items
+               if actor_name and actor_name.lower() in  media.get("original_name", "").lower():
                    filtered_data.append(media)
            else:
                print(f"Skipping non-dictionary item: {media}")   # Debugging
        except AttributeError as e:
-            print(f"Unexpected Error occurred: {e}")
-            continue
+           print(f"Unexpected Error occurred: {e}")
+           continue
+    # Return filtered results with a message if no match is found
+    if filtered_data:
+        return {"filtered results": filtered_data}
+    else:
+        return {"message": "No matching actor found. Displaying all results.", 
+"filtered_results": results}
 
-    return {"filtered results": filtered_data} 
+
+

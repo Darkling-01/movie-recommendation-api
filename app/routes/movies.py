@@ -17,9 +17,15 @@ async def movie_recommendations():
         return media_data
 
 # Receiving user's preferences by using GET to searh through collection
-@router.get("/media/filtering")
+@router.get("/media/advanced_filtering")
+# Advanced search
+async def filtering_user_input(
+                               media_type: str=None,
+                               actor_name: str=None,
+                               original_language: str=None,
+                               known_for_department: str=None
+                              ):
 
-async def filtering_user_input(actor_name: str=None):
     media_data = await get_movie_recommendations()
 
     # Make sure we're working with the "results" key from the media_data 
@@ -30,9 +36,15 @@ async def filtering_user_input(actor_name: str=None):
     # filter data based on media type and actor
     for media in results:
        try:
+
            if isinstance(media, dict):  # Only process dictonary items
-               if actor_name and actor_name.lower() in  media.get("original_name", "").lower():
-                   filtered_data.append(media)
+               if actor_name and actor_name.lower() not in media.get("original_name", "").lower():
+                   continue
+               if media_type and media.get("media_type", "").lower() != media_type.lower():
+                   continue
+               if original_language and media.get("original_language","").lower() != original_language.lower():
+                   continue
+               filtered_data.append(media)
            else:
                print(f"Skipping non-dictionary item: {media}")   # Debugging
        except AttributeError as e:
@@ -43,7 +55,6 @@ async def filtering_user_input(actor_name: str=None):
         return {"filtered results": filtered_data}
     else:
         return {"message": "No matching actor found. Displaying all results.", 
-"filtered_results": results}
-
+                "filtered_results": results}
 
 

@@ -22,8 +22,8 @@ async def movie_recommendations():
 async def filtering_user_input(
                                media_type: str=None,
                                actor_name: str=None,
-                               original_language: str=None,
-                               known_for_department: str=None
+                              # original_language: str=None,
+                               #known_for_department: str=None
                               ):
 
     media_data = await get_movie_recommendations()
@@ -40,10 +40,15 @@ async def filtering_user_input(
            if isinstance(media, dict):  # Only process dictonary items
                if actor_name and actor_name.lower() not in media.get("original_name", "").lower():
                    continue
-               if media_type and media.get("media_type", "").lower() != media_type.lower():
-                   continue
-               if original_language and media.get("original_language","").lower() != original_language.lower():
-                   continue
+
+               if media_type:
+                   media_type_match = False  # Flag to track if a match is found in known_for
+                   for known_item in media.get("known_for", []):
+                         if known_item.get("media_type", "").lower() == media_type.lower():
+                             media_type_match = True
+                             break  # Exit the loop once a match is found
+                   if not media_type_match:  # If no match is found, continue to the next item
+                        continue
                filtered_data.append(media)
            else:
                print(f"Skipping non-dictionary item: {media}")   # Debugging

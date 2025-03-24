@@ -49,6 +49,27 @@ async def filtering_user_input(
                              break  # Exit the loop once a match is found
                    if not media_type_match:  # If no match is found, continue to the next item
                         continue
+
+               if original_language:
+                   original_language_match = False
+                   for known_item in media.get("known_for", []):
+                        known_language = known_item.get("original_language", "").lower()
+                        if known_language == original_language.lower():
+                            original_language_match = True
+                            break
+                   if not original_language_match:
+                       continue
+ 
+               if known_for_department:
+                   department_match = False
+                   for known_item_department in media.get("known_for", []):
+                        department = known_item_department.get("known_for_department", "").lower()
+                        if department == known_for_department.lower():
+                           department_match = True
+                           break
+                   if not department_match:
+                       continue
+                       
                filtered_data.append(media)
            else:
                print(f"Skipping non-dictionary item: {media}")   # Debugging

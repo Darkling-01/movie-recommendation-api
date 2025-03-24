@@ -1,5 +1,7 @@
 # movie-recommendation-api
 
+Creating a simple API to collect movie information of user's preferences and display a selection of options with advance features.
+This project is design to understand the fundamental of recieving and sending API request with FastAPI libraries. 
 
 # File Structure
 

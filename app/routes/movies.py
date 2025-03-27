@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.utils.external_api import get_movie_recommendations
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_session, UserPreference
 
 router = APIRouter()
 
@@ -22,8 +24,9 @@ async def movie_recommendations():
 async def filtering_user_input(
                                media_type: str=None,
                                actor_name: str=None,
-                              # original_language: str=None,
-                               #known_for_department: str=None
+                               original_language: str=None,
+                               known_for_department: str=None,
+                               db_session: AsyncSession = Depends(get_session) # Depency injection for the database session
                               ):
 
     media_data = await get_movie_recommendations()
@@ -71,6 +74,18 @@ async def filtering_user_input(
                        continue
                        
                filtered_data.append(media)
+
+               
+               # Now, save the user preference to the database after filtering is done
+               async with async_session() as session:
+                    user_preference = UserPreference(
+                        media_type=media_type,
+                        actor_name=actor_name,
+                        original_language=original_language,
+                        known_for_department=known_for_department
+                    )
+                    session.add(user_preference)
+                    await session.commit()  # Commit the changes asynchronously
            else:
                print(f"Skipping non-dictionary item: {media}")   # Debugging
        except AttributeError as e:
